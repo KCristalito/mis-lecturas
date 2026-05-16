@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#c8a8e9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mis Lecturas">
+<link rel="manifest" href="manifest.json">
+<title>📚 Mis Lecturas</title>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Itim&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   VARIABLES — LIGHT (CRAYON DAY)
+══════════════════════════════════════════ */
+:root {
+  --lila:#c8a8e9; --lila-l:#e8d5f5; --lila-d:#a07cc5;
+  --mint:#a8d8b9; --mint-l:#d4f0df; --mint-d:#6ab88a;
+  --pink:#f5b8c8; --pink-l:#fde0e8;
+  --yellow:#f9e4a0; --yellow-d:#c8a020;
+  --blue:#a8c8f0; --blue-l:#d5e8f8; --blue-d:#4a80c0;
+  --red:#f5a8a8; --red-l:#fde0e0;
+  --orange:#f5c8a0; --orange-l:#fde8d5; --orange-d:#c07030;
+  --bg:#faf6ff; --bg2:#f2ecfc; --bg3:#ede5f8;
+  --card:#ffffff; --card2:#f7f2ff;
+  --text:#5a4a6a; --text-l:#8a7a9a; --text-ll:#c0b0d0;
+  --border:rgba(200,168,233,0.35);
+  --shadow:rgba(180,160,210,0.2);
+  --shadow2:rgba(90,74,106,0.1);
+  --accent:var(--lila);
+  --heading:var(--lila-d);
+  --status-stroke:#5a4a6a;
+  --chalk:#5a4a6a;
+}
+
+/* ══════════════════════════════════════════
+   VARIABLES — DARK (AESTHETIC MIDNIGHT)
+══════════════════════════════════════════ */
+[data-theme="dark"] {
+  --bg:#1c1f2e; --bg2:#232740; --bg3:#2a2f4a;
+  --card:#252a3e; --card2:#2e3350;
+  --text:#dde4ff; --text-l:#8892c8; --text-ll:#4a5280;
+  --border:rgba(160,180,255,0.18);
+  --shadow:rgba(0,0,0,0.4);
+  --shadow2:rgba(0,0,0,0.5);
+  --accent:#8899ee;
+  --heading:#aab8ff;
+  --lila:#8899ee; --lila-l:#2a2f4a; --lila-d:#aab8ff;
+  --mint-l:#1a2e28; --mint-d:#6ddba8;
+  --pink-l:#2e1a22; --pink:#e898b8;
+  --blue-l:#1a2240; --blue-d:#88aae8;
+  --red-l:#2e1a1a;
+  --orange-l:#2e2010; --orange-d:#e8a060;
+  --yellow:#f0d860; --yellow-d:#f0d860;
+  --chalk:#f0e8ff;
+  --status-stroke:#dde4ff;
+  /* Doodle lines become chalk-white */
+}
+
+/* ══════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Patrick Hand',cursive;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background .35s,color .35s;
+}
+
+/* Midnight texture overlay */
+[data-theme="dark"] body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.4;
+}
+
+/* ══════════════════════════════════════════
+   DOODLE BG
+══════════════════════════════════════════ */
+.doodle-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.doodle-bg span{
+  position:absolute;font-size:1.4rem;
+  opacity:0.08;
+  animation:floatD 9s ease-in-out infinite;
+}
+[data-theme="dark"] .doodle-bg span{opacity:0.06;filter:hue-rotate(180deg) brightness(2);}
+.doodle-bg span:nth-child(1){top:4%;left:2%;animation-delay:0s;font-size:1rem}
+.doodle-bg span:nth-child(2){top:11%;right:4%;animation-delay:1.2s;font-size:1.6rem}
+.doodle-bg span:nth-child(3){top:30%;left:1%;animation-delay:2.1s}
+.doodle-bg span:nth-child(4){top:50%;right:2%;animation-delay:.6s;font-size:.9rem}
+.doodle-bg span:nth-child(5){top:68%;left:3%;animation-delay:3.3s;font-size:1.8rem}
+.doodle-bg span:nth-child(6){bottom:18%;right:4%;animation-delay:1.7s}
+.doodle-bg span:nth-child(7){bottom:5%;left:7%;animation-delay:2.8s;font-size:1.1rem}
+.doodle-bg span:nth-child(8){top:83%;right:9%;animation-delay:.9s}
+@keyframes floatD{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(4deg)}}
+
+/* ══════════════════════════════════════════
+   STICKY TOP BAR
+══════════════════════════════════════════ */
+.top-bar{
+  position:sticky;top:0;z-index:50;
+  background:var(--bg);
+  border-bottom:2px solid var(--border);
+  padding:12px 14px 0;
+  transition:background .35s;
+}
+[data-theme="dark"] .top-bar{
+  box-shadow:0 2px 20px rgba(0,0,0,.4);
+}
+
+.header-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.header-title h1{
+  font-family:'Itim',cursive;
+  font-size:1.55rem;
+  color:var(--heading);
+  letter-spacing:.5px;
+  text-shadow:2px 2px 0 var(--shadow);
+}
+.header-title p{font-size:.75rem;color:var(--text-l);margin-top:1px;}
+
+/* Dark mode toggle — sun/moon doodle */
+.btn-dark{
+  width:40px;height:40px;
+  background:var(--card);
+  border:2.5px solid var(--accent);
+  border-radius:50% 45% 50% 48%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;cursor:pointer;
+  box-shadow:3px 3px 0 var(--shadow);
+  transition:all .2s;flex-shrink:0;
+}
+.btn-dark:active{transform:scale(.88) rotate(15deg);}
+
+/* Tabs */
+.tabs{
+  display:flex;gap:7px;
+  overflow-x:auto;padding-bottom:10px;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{
+  font-family:'Patrick Hand',cursive;
+  font-size:.88rem;
+  padding:7px 16px;
+  border:2.5px solid var(--accent);
+  background:var(--card);
+  color:var(--text-l);
+  border-radius:20px 17px 22px 15px;
+  cursor:pointer;
+  transition:all .2s;
+  box-shadow:3px 3px 0 var(--shadow);
+  flex-shrink:0;
+  white-space:nowrap;
+}
+.tab-btn.active{
+  background:var(--accent);
+  color:#fff;
+  font-weight:bold;
+  box-shadow:4px 4px 0 var(--shadow2);
+  transform:translateY(-2px);
+}
+[data-theme="dark"] .tab-btn.active{color:#1c1f2e;}
+
+/* ══════════════════════════════════════════
+   STICKY SEARCH / FILTER BAR (per section)
+══════════════════════════════════════════ */
+.ctrl-bar{
+  position:sticky;top:108px;z-index:40;
+  background:var(--bg);
+  padding:8px 14px 6px;
+  border-bottom:1.5px dashed var(--border);
+  transition:background .35s;
+}
+.search-row{display:flex;gap:8px;align-items:center;margin-bottom:7px;}
+.search-wrap{
+  flex:1;
+  display:flex;align-items:center;
+  background:var(--card);
+  border:2px solid var(--accent);
+  border-radius:22px 18px 24px 16px;
+  padding:0 12px;
+  box-shadow:2px 2px 0 var(--shadow);
+  gap:6px;
+}
+.search-icon{font-size:.9rem;color:var(--text-ll);}
+.search-input{
+  flex:1;
+  font-family:'Patrick Hand',cursive;
+  font-size:.9rem;
+  border:none;background:transparent;
+  color:var(--text);outline:none;
+  padding:8px 0;
+}
+.search-input::placeholder{color:var(--text-ll);}
+.btn-clear-search{
+  background:none;border:none;
+  font-size:.85rem;color:var(--text-ll);
+  cursor:pointer;padding:2px;
+}
+.btn-view-toggle{
+  background:var(--card);
+  border:2px solid var(--accent);
+  border-radius:12px 10px 14px 11px;
+  width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;cursor:pointer;
+  box-shadow:2px 2px 0 var(--shadow);
+  flex-shrink:0;transition:all .15s;
+}
+.btn-view-toggle:active{transform:scale(.9);}
+
+/* Filter chips */
+.filter-row{
+  display:flex;gap:6px;
+  overflow-x:auto;padding-bottom:4px;
+  scrollbar-width:none;margin-bottom:6px;
+}
+.filter-row::-webkit-scrollbar{display:none;}
+.f-chip{
+  font-family:'Patrick Hand',cursive;
+  font-size:.7rem;
+  padding:4px 12px;
+  border-radius:12px 10px 14px 11px;
+  border:1.5px solid var(--accent);
+  background:var(--card);
+  color:var(--text-l);
+  cursor:pointer;
+  white-space:nowrap;
+  flex-shrink:0;
+  transition:all .15s;
+}
+.f-chip.active{background:var(--accent);color:#fff;border-color:var(--lila-d);}
+[data-theme="dark"] .f-chip.active{color:#1c1f2e;}
+
+/* Sort row */
+.sort-row{display:flex;align-items:center;gap:7px;}
+.sort-lbl{font-size:.7rem;color:var(--text-l);flex-shrink:0;}
+.sort-sel{
+  font-family:'Patrick Hand',cursive;
+  font-size:.75rem;
+  border:1.5px solid var(--accent);
+  border-radius:10px 8px 12px 9px;
+  padding:3px 8px;
+  background:var(--card);
+  color:var(--text);
+  cursor:pointer;
+}
+
+/* ══════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════ */
+.main{position:relative;z-index:5;padding:12px 13px 110px;max-width:600px;margin:0 auto;}
+
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;padding-top:4px;
+}
+.section-title{font-family:'Itim',cursive;font-size:1.1rem;color:var(--heading);}
+.btn-add{
+  font-family:'Patrick Hand',cursive;font-size:.9rem;
+  padding:8px 18px;
+  background:var(--accent);color:#fff;
+  border:none;border-radius:18px 14px 20px 12px;
+  cursor:pointer;
+  box-shadow:3px 3px 0 var(--shadow2);
+  transition:all .15s;
+}
+[data-theme="dark"] .btn-add{color:#1c1f2e;}
+.btn-add:active{transform:scale(.96);}
+
+/* Stats bar */
+.stats-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.stat-chip{font-size:.68rem;padding:3px 10px;border-radius:12px;background:var(--lila-l);color:var(--lila-d);border:1.5px solid var(--accent);font-family:'Patrick Hand',cursive;}
+.stat-chip.g{background:var(--mint-l);color:var(--mint-d);border-color:var(--mint);}
+.stat-chip.o{background:var(--orange-l);color:var(--orange-d);border-color:var(--orange);}
+.stat-chip.b{background:var(--blue-l);color:var(--blue-d);border-color:var(--blue);}
+
+/* ══════════════════════════════════════════
+   CARDS GRID
+══════════════════════════════════════════ */
+.cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.cards-grid.large-view{grid-template-columns:1fr;}
+
+/* ══════════════════════════════════════════
+   MANHWA CARD
+══════════════════════════════════════════ */
+.m-card{
+  background:var(--card);
+  border-radius:18px 14px 20px 15px;
+  border:2.5px solid var(--mint-d);
+  box-shadow:5px 5px 0 rgba(168,216,185,.18),0 2px 10px var(--shadow2);
+  overflow:hidden;
+  transition:border-color .2s,box-shadow .2s,transform .15s;
+  position:relative;cursor:pointer;
+}
+.m-card:active{transform:scale(.98);}
+.m-card[data-s="Leyendo"]{border-color:var(--mint-d);box-shadow:5px 5px 0 rgba(106,184,138,.2);}
+.m-card[data-s="Hiatus"]{border-color:#e8a060;box-shadow:5px 5px 0 rgba(232,160,96,.2);}
+.m-card[data-s="Cancelado"]{border-color:#e06060;box-shadow:5px 5px 0 rgba(224,96,96,.2);}
+.m-card[data-s="Esperando"]{border-color:var(--blue);box-shadow:5px 5px 0 rgba(168,200,240,.2);}
+.m-card[data-s="Terminado"]{border-color:var(--lila-d);box-shadow:5px 5px 0 rgba(160,124,197,.2);}
+
+[data-theme="dark"] .m-card{box-shadow:5px 5px 0 rgba(0,0,0,.4);}
+
+.cover-wrap{position:relative;width:100%;height:145px;overflow:hidden;}
+.large-view .cover-wrap{height:230px;}
+.cover-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;}
+.m-card:hover .cover-img{transform:scale(1.04);}
+.cover-ph{
+  width:100%;height:100%;
+  background:linear-gradient(135deg,var(--lila-l),var(--mint-l));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:2rem;color:var(--lila-d);gap:4px;
+}
+.cover-ph span{font-size:.68rem;color:var(--text-l);font-family:'Patrick Hand',cursive;}
+
+.card-body{padding:9px 10px 12px;}
+.card-title{
+  font-family:'Itim',cursive;font-size:.9rem;
+  color:var(--text);margin-bottom:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.large-view .card-title{white-space:normal;font-size:1rem;}
+
+.s-badge{
+  display:inline-block;font-size:.66rem;
+  padding:2px 9px;border-radius:10px 8px 12px 6px;
+  margin-bottom:5px;font-family:'Patrick Hand',cursive;
+}
+.s-Leyendo{background:var(--mint-l);color:var(--mint-d);}
+.s-Hiatus{background:var(--orange-l);color:var(--orange-d);}
+.s-Cancelado{background:var(--red-l);color:#c05050;}
+.s-Esperando{background:var(--blue-l);color:var(--blue-d);}
+.s-Terminado{background:var(--lila-l);color:var(--lila-d);}
+
+.tags-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
+.tag-chip{font-size:.6rem;padding:1px 7px;border-radius:8px;background:var(--bg2);color:var(--text-l);border:1px solid var(--border);}
+
+/* BIG chapter controls */
+.ch-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.ch-lbl{font-size:.7rem;color:var(--text-l);flex-shrink:0;}
+.ch-ctrls{display:flex;align-items:center;gap:5px;flex:1;}
+.btn-ch{
+  width:36px;height:36px;
+  border:2.5px solid var(--accent);
+  background:var(--lila-l);
+  color:var(--lila-d);
+  border-radius:50%;
+  font-size:1.3rem;
+  cursor:pointer;
+  font-family:'Patrick Hand',cursive;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:transform .1s,background .15s;
+  box-shadow:2px 2px 0 var(--shadow);
+}
+.btn-ch:active{transform:scale(.84);background:var(--accent);color:#fff;}
+[data-theme="dark"] .btn-ch:active{color:#1c1f2e;}
+.ch-num{
+  font-size:.9rem;color:var(--text);
+  min-width:32px;text-align:center;
+  font-family:'Itim',cursive;
+}
+.card-date{font-size:.63rem;color:var(--text-l);}
+
+/* Read link button */
+.btn-read-link{
+  display:inline-flex;align-items:center;gap:4px;
+  font-family:'Patrick Hand',cursive;font-size:.68rem;
+  padding:3px 10px;
+  background:var(--mint-l);color:var(--mint-d);
+  border:1.5px solid var(--mint);
+  border-radius:10px 8px 12px 9px;
+  text-decoration:none;
+  margin-top:4px;
+  transition:all .15s;
+}
+.btn-read-link:active{background:var(--mint);color:#fff;}
+
+/* menu btn */
+.menu-btn{
+  position:absolute;top:7px;right:7px;
+  background:rgba(255,255,255,.88);
+  border:1.5px solid var(--accent);
+  border-radius:50%;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:.9rem;z-index:3;
+  box-shadow:2px 2px 0 var(--shadow);
+}
+[data-theme="dark"] .menu-btn{background:rgba(28,31,46,.88);}
+
+/* ══════════════════════════════════════════
+   BOOK CARD
+══════════════════════════════════════════ */
+.b-card{
+  background:var(--card);
+  border-radius:18px 14px 20px 15px;
+  border:2.5px solid var(--pink);
+  box-shadow:5px 5px 0 rgba(245,184,200,.18),0 2px 10px var(--shadow2);
+  overflow:hidden;position:relative;cursor:pointer;
+  transition:transform .15s;
+}
+.b-card:active{transform:scale(.98);}
+[data-theme="dark"] .b-card{box-shadow:5px 5px 0 rgba(0,0,0,.4);}
+.book-ph{
+  width:100%;height:145px;
+  background:linear-gradient(135deg,var(--pink-l),var(--yellow));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:2rem;color:#c07090;gap:4px;
+}
+.book-ph span{font-size:.68rem;color:var(--text-l);font-family:'Patrick Hand',cursive;}
+.large-view .book-ph{height:230px;}
+.b-body{padding:9px 10px 11px;}
+.b-title{font-family:'Itim',cursive;font-size:.9rem;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.large-view .b-title{white-space:normal;font-size:1rem;}
+.b-author{font-size:.68rem;color:var(--text-l);margin-bottom:5px;}
+.stars-row{display:flex;gap:3px;margin-bottom:5px;}
+.star-btn{font-size:1rem;cursor:pointer;transition:transform .1s;background:none;border:none;padding:1px;}
+.star-btn:active{transform:scale(1.4);}
+/* progress */
+.prog-row{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.prog-row label{font-size:.66rem;color:var(--text-l);flex-shrink:0;}
+.prog-bar-wrap{flex:1;height:6px;background:var(--bg2);border-radius:4px;overflow:hidden;}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--pink),var(--lila));border-radius:4px;transition:width .3s;}
+.prog-pct{font-size:.62rem;color:var(--text-l);min-width:28px;text-align:right;}
+.b-dates{font-size:.63rem;color:var(--text-l);margin-bottom:4px;}
+.b-comment-inline{
+  font-family:'Patrick Hand',cursive;font-size:.7rem;
+  border:1.5px dashed var(--pink);
+  border-radius:8px 6px 10px 7px;
+  padding:4px 7px;
+  color:var(--text);background:var(--pink-l);
+  width:100%;resize:none;height:44px;
+}
+
+/* ══════════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════════ */
+.empty{text-align:center;padding:38px 20px;color:var(--text-l);font-size:.88rem;grid-column:1/-1;}
+.empty .ei{font-size:3rem;margin-bottom:10px;display:block;}
+
+/* ══════════════════════════════════════════
+   DETAIL MODAL (full screen)
+══════════════════════════════════════════ */
+.detail-overlay{
+  position:fixed;inset:0;
+  background:rgba(20,18,40,.55);
+  z-index:200;
+  backdrop-filter:blur(5px);
+  animation:fadeIn .18s;
+}
+.detail-panel{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  max-height:92vh;
+  background:var(--bg);
+  border-radius:26px 26px 0 0;
+  border-top:3px solid var(--accent);
+  box-shadow:0 -8px 40px var(--shadow2);
+  z-index:201;
+  overflow-y:auto;
+  animation:slideUp .3s cubic-bezier(.34,1.2,.64,1);
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.d-handle{width:44px;height:5px;background:var(--accent);border-radius:4px;margin:12px auto 0;}
+.d-inner{padding:14px 16px 50px;}
+
+/* Big cover in detail */
+.d-cover-big{
+  width:100%;
+  max-height:280px;
+  object-fit:cover;
+  border-radius:16px 12px 18px 14px;
+  box-shadow:6px 6px 0 var(--shadow);
+  cursor:zoom-in;
+  display:block;
+  margin-bottom:14px;
+}
+.d-cover-ph-big{
+  width:100%;height:200px;
+  background:linear-gradient(135deg,var(--lila-l),var(--mint-l));
+  border-radius:16px 12px 18px 14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:4rem;margin-bottom:14px;
+}
+.d-title{font-family:'Itim',cursive;font-size:1.3rem;color:var(--heading);margin-bottom:6px;}
+.d-meta{font-size:.78rem;color:var(--text-l);margin-bottom:10px;line-height:1.6;}
+.d-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.d-btn{
+  font-family:'Patrick Hand',cursive;font-size:.82rem;
+  padding:8px 16px;border-radius:14px 12px 16px 12px;
+  border:2px solid var(--accent);
+  background:var(--lila-l);color:var(--lila-d);
+  cursor:pointer;transition:all .15s;
+}
+.d-btn.primary{background:var(--accent);color:#fff;border-color:var(--lila-d);}
+[data-theme="dark"] .d-btn.primary{color:#1c1f2e;}
+.d-btn.go{background:var(--mint-l);color:var(--mint-d);border-color:var(--mint);text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
+.d-btn.danger{background:var(--red-l);color:#c05050;border-color:var(--red);}
+.d-btn:active{transform:scale(.95);}
+
+.d-section{margin-bottom:14px;}
+.d-section h4{font-family:'Itim',cursive;font-size:.88rem;color:var(--heading);margin-bottom:7px;}
+.d-note{
+  font-family:'Patrick Hand',cursive;font-size:.85rem;
+  border:2px dashed var(--accent);
+  border-radius:12px 10px 14px 11px;
+  padding:9px 11px;
+  color:var(--text);background:var(--card2);
+  width:100%;resize:none;height:72px;
+}
+
+/* History */
+.history-list{display:flex;flex-direction:column;gap:5px;max-height:160px;overflow-y:auto;}
+.h-item{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--card2);border-radius:10px;
+  padding:6px 11px;font-size:.76rem;
+}
+.h-date{color:var(--text-l);}
+.h-ch{font-family:'Itim',cursive;color:var(--lila-d);font-size:.82rem;}
+
+.detail-close{
+  position:fixed;
+  top:calc(8vh + 12px);right:16px;
+  background:var(--card2);
+  border:2px solid var(--accent);
+  border-radius:50%;
+  width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1rem;
+  color:var(--text-l);z-index:202;
+  box-shadow:2px 2px 0 var(--shadow);
+}
+
+/* ══════════════════════════════════════════
+   LIGHTBOX
+══════════════════════════════════════════ */
+.lightbox{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.92);
+  z-index:500;
+  display:flex;align-items:center;justify-content:center;
+  animation:fadeIn .2s;
+}
+.lightbox img{max-width:96vw;max-height:90vh;border-radius:14px;box-shadow:0 8px 50px rgba(0,0,0,.7);}
+.lb-close{
+  position:fixed;top:16px;right:16px;
+  font-size:1.8rem;color:#fff;cursor:pointer;
+  background:rgba(0,0,0,.4);border-radius:50%;
+  width:42px;height:42px;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ══════════════════════════════════════════
+   ADD/EDIT MODAL
+══════════════════════════════════════════ */
+.modal-ov{
+  position:fixed;inset:0;
+  background:rgba(60,40,90,.42);
+  z-index:300;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  backdrop-filter:blur(4px);
+  animation:fadeIn .15s;
+}
+.modal{
+  background:var(--card);
+  border-radius:22px 18px 24px 16px;
+  border:2.5px solid var(--accent);
+  box-shadow:8px 8px 0 rgba(160,124,197,.22),0 10px 30px var(--shadow2);
+  padding:22px 18px 18px;
+  width:100%;max-width:370px;
+  position:relative;
+  animation:popIn .2s cubic-bezier(.34,1.56,.64,1);
+  max-height:88vh;overflow-y:auto;
+}
+@keyframes popIn{from{transform:scale(.84)}to{transform:scale(1)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal h2{font-family:'Itim',cursive;font-size:1.1rem;color:var(--heading);margin-bottom:12px;text-align:center;}
+.modal label{display:block;font-size:.78rem;color:var(--text-l);margin-bottom:3px;margin-top:8px;}
+.modal input,.modal select,.modal textarea{
+  font-family:'Patrick Hand',cursive;font-size:.9rem;
+  width:100%;padding:8px 10px;
+  border:2px solid var(--border);
+  border-radius:10px 8px 12px 9px;
+  color:var(--text);background:var(--bg2);
+  outline:none;transition:border-color .15s;
+}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--accent);}
+.modal textarea{resize:none;height:56px;}
+.modal-btns{display:flex;gap:8px;margin-top:14px;}
+.btn-save{
+  flex:1;font-family:'Patrick Hand',cursive;font-size:.95rem;
+  padding:10px;background:var(--accent);color:#fff;
+  border:none;border-radius:14px 12px 16px 12px;cursor:pointer;
+  box-shadow:3px 3px 0 var(--shadow2);
+}
+[data-theme="dark"] .btn-save{color:#1c1f2e;}
+.btn-cancel{
+  flex:1;font-family:'Patrick Hand',cursive;font-size:.95rem;
+  padding:10px;background:var(--card);color:var(--text-l);
+  border:2px solid var(--border);border-radius:14px 12px 16px 12px;cursor:pointer;
+}
+.btn-del{
+  font-family:'Patrick Hand',cursive;font-size:.85rem;
+  padding:8px;background:var(--red-l);color:#c05050;
+  border:2px solid var(--red);border-radius:12px;
+  cursor:pointer;margin-top:8px;width:100%;
+}
+.modal-close{position:absolute;top:10px;right:13px;font-size:1.3rem;cursor:pointer;color:var(--text-l);background:none;border:none;}
+.m-stars{display:flex;gap:6px;margin-top:5px;font-size:1.6rem;}
+.m-star{cursor:pointer;transition:transform .1s;}
+.m-star:active{transform:scale(1.3);}
+
+/* ══════════════════════════════════════════
+   CTX MENU
+══════════════════════════════════════════ */
+.ctx{
+  position:fixed;background:var(--card);
+  border:2px solid var(--accent);
+  border-radius:14px 12px 16px 12px;
+  box-shadow:5px 5px 0 var(--shadow);
+  z-index:400;min-width:160px;padding:5px 0;
+  animation:popIn .15s cubic-bezier(.34,1.56,.64,1);
+}
+.ctx-item{font-family:'Patrick Hand',cursive;font-size:.88rem;padding:10px 16px;cursor:pointer;color:var(--text);transition:background .1s;}
+.ctx-item:hover{background:var(--lila-l);}
+.ctx-item.red{color:#c05050;}
+
+/* ══════════════════════════════════════════
+   INSTALL BANNERS
+══════════════════════════════════════════ */
+.install-banner{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--card);border-top:2.5px solid var(--accent);
+  padding:12px 14px;display:flex;align-items:center;gap:9px;
+  z-index:600;box-shadow:0 -4px 20px var(--shadow);
+  transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.install-banner.show{transform:translateY(0);}
+.install-banner p{flex:1;font-size:.8rem;color:var(--text);line-height:1.3;}
+.install-banner p strong{color:var(--heading);font-family:'Itim',cursive;}
+.btn-install{font-family:'Patrick Hand',cursive;font-size:.83rem;padding:8px 14px;background:var(--accent);color:#fff;border:none;border-radius:14px;cursor:pointer;white-space:nowrap;}
+[data-theme="dark"] .btn-install{color:#1c1f2e;}
+.btn-ix{background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--text-l);}
+.ios-guide{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--card);border-top:2.5px solid var(--accent);
+  padding:16px 18px 26px;z-index:600;
+  box-shadow:0 -4px 20px var(--shadow);
+  transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  border-radius:22px 22px 0 0;
+}
+.ios-guide.show{transform:translateY(0);}
+.ios-guide h3{font-family:'Itim',cursive;color:var(--heading);margin-bottom:10px;font-size:1rem;}
+.ios-guide ol{padding-left:18px;font-size:.83rem;color:var(--text);line-height:2.3;}
+.ios-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-l);}
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:76px;left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:var(--lila-d);color:#fff;
+  font-family:'Patrick Hand',cursive;font-size:.88rem;
+  padding:9px 22px;border-radius:22px;
+  box-shadow:4px 4px 0 rgba(160,124,197,.3);
+  opacity:0;transition:all .3s;z-index:999;
+  pointer-events:none;white-space:nowrap;
+}
+[data-theme="dark"] .toast{background:#aab8ff;color:#1c1f2e;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.file-input{display:none;}
+</style>
+</head>
+<body>
+<div class="doodle-bg">
+  <span>⭐</span><span>🌸</span><span>💫</span><span>☁️</span>
+  <span>🌟</span><span>💕</span><span>✨</span><span>🍀</span>
+</div>
+
+<!-- ════════ STICKY TOP BAR ════════ -->
+<div class="top-bar">
+  <div class="header-row">
+    <div style="width:40px"></div>
+    <div class="header-title">
+      <h1>📚 Mis Lecturas ✨</h1>
+      <p>Tu rincón personal 🌸</p>
+    </div>
+    <button class="btn-dark" id="btn-dark" onclick="toggleDark()">🌙</button>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-manhwa" onclick="switchTab('manhwa')">🖼️ Manhwas</button>
+    <button class="tab-btn"        id="tab-book"   onclick="switchTab('book')">📖 Libros</button>
+  </div>
+</div>
+
+<!-- ════════ MANHWA CTRL BAR ════════ -->
+<div class="ctrl-bar" id="ctrl-manhwa">
+  <div class="search-row">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="m-search" placeholder="Buscar título o tag..." oninput="renderManhwas()">
+      <button class="btn-clear-search" onclick="clearSearch('m-search')">✕</button>
+    </div>
+    <button class="btn-view-toggle" id="m-view-btn" onclick="toggleMView()" title="Cambiar vista">⊞</button>
+  </div>
+  <div class="filter-row" id="m-filters">
+    <span class="f-chip active" data-f="Todos"     onclick="setMF('Todos',this)">✨ Todos</span>
+    <span class="f-chip"       data-f="Leyendo"    onclick="setMF('Leyendo',this)">📗 Leyendo</span>
+    <span class="f-chip"       data-f="Hiatus"     onclick="setMF('Hiatus',this)">⏰ Hiatus</span>
+    <span class="f-chip"       data-f="Esperando"  onclick="setMF('Esperando',this)">⭐ Esperando</span>
+    <span class="f-chip"       data-f="Cancelado"  onclick="setMF('Cancelado',this)">❌ Cancelado</span>
+    <span class="f-chip"       data-f="Terminado"  onclick="setMF('Terminado',this)">✅ Terminado</span>
+  </div>
+  <div class="sort-row">
+    <span class="sort-lbl">Ordenar:</span>
+    <select class="sort-sel" id="m-sort" onchange="renderManhwas()">
+      <option value="recent">Última lectura</option>
+      <option value="alpha">A – Z</option>
+      <option value="chapter">Capítulo mayor</option>
+    </select>
+  </div>
+</div>
+
+<!-- ════════ BOOK CTRL BAR ════════ -->
+<div class="ctrl-bar" id="ctrl-book" style="display:none">
+  <div class="search-row">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="b-search" placeholder="Buscar título, autor o tag..." oninput="renderBooks()">
+      <button class="btn-clear-search" onclick="clearSearch('b-search')">✕</button>
+    </div>
+    <button class="btn-view-toggle" id="b-view-btn" onclick="toggleBView()" title="Cambiar vista">⊞</button>
+  </div>
+  <div class="filter-row" id="b-filters">
+    <span class="f-chip active" data-f="Todos"     onclick="setBF('Todos',this)">✨ Todos</span>
+    <span class="f-chip"       data-f="Leyendo"    onclick="setBF('Leyendo',this)">📖 Leyendo</span>
+    <span class="f-chip"       data-f="Terminado"  onclick="setBF('Terminado',this)">✅ Terminado</span>
+    <span class="f-chip"       data-f="5"          onclick="setBF('5',this)">⭐⭐⭐⭐⭐</span>
+    <span class="f-chip"       data-f="4"          onclick="setBF('4',this)">⭐ 4+</span>
+  </div>
+  <div class="sort-row">
+    <span class="sort-lbl">Ordenar:</span>
+    <select class="sort-sel" id="b-sort" onchange="renderBooks()">
+      <option value="recent">Más reciente</option>
+      <option value="alpha">A – Z</option>
+      <option value="rating">Calificación</option>
+      <option value="progress">Progreso</option>
+    </select>
+  </div>
+</div>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+
+  <!-- MANHWA SECTION -->
+  <div id="section-manhwa">
+    <div class="section-header">
+      <span class="section-title">🖼️ Mis Manhwas</span>
+      <button class="btn-add" onclick="openAddManhwa()">+ Agregar</button>
+    </div>
+    <div class="stats-bar" id="m-stats"></div>
+    <div class="cards-grid" id="m-grid"></div>
+  </div>
+
+  <!-- BOOK SECTION -->
+  <div id="section-book" style="display:none">
+    <div class="section-header">
+      <span class="section-title">📖 Mis Libros</span>
+      <button class="btn-add" onclick="openAddBook()">+ Agregar</button>
+    </div>
+    <div class="cards-grid" id="b-grid"></div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+<input type="file" accept="image/*" class="file-input" id="fi-manhwa">
+<input type="file" accept="image/*" class="file-input" id="fi-book">
+
+<!-- Install banners -->
+<div class="install-banner" id="install-banner">
+  <p>🌸 <strong>Instala Mis Lecturas</strong><br>Agrégala a tu pantalla de inicio</p>
+  <button class="btn-install" id="btn-install-click">Instalar ✨</button>
+  <button class="btn-ix" onclick="dismissBanner()">✕</button>
+</div>
+<div class="ios-guide" id="ios-guide">
+  <button class="ios-close" onclick="dismissIos()">✕</button>
+  <h3>📱 Instalar en iPhone / iPad</h3>
+  <ol>
+    <li>Toca el botón <strong>Compartir</strong> (□↑) en Safari</li>
+    <li>Toca <strong>"Agregar a pantalla de inicio"</strong></li>
+    <li>Toca <strong>Agregar</strong> — ¡listo! 🌸</li>
+  </ol>
+</div>
+
+<!-- MODAL: Manhwa -->
+<div class="modal-ov" id="modal-manhwa" style="display:none" onclick="closeMOvBg(event,'modal-manhwa')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-manhwa')">✕</button>
+    <h2 id="mm-title">✨ Nuevo Manhwa</h2>
+    <input type="hidden" id="mm-id">
+    <label>Título *</label>
+    <input type="text" id="mm-name" placeholder="Nombre del manhwa...">
+    <label>Estado</label>
+    <select id="mm-status">
+      <option value="Leyendo">📗 Leyendo</option>
+      <option value="Hiatus">⏰ Hiatus</option>
+      <option value="Esperando">⭐ Esperando actualización</option>
+      <option value="Cancelado">❌ Cancelado</option>
+      <option value="Terminado">✅ Terminado</option>
+    </select>
+    <label>Capítulo actual</label>
+    <input type="number" id="mm-chapter" placeholder="Ej: 124" min="0">
+    <label>Link de lectura (URL)</label>
+    <input type="text" id="mm-link" placeholder="https://ejemplo.com/manhwa...">
+    <label>Géneros / Tags (separados por coma)</label>
+    <input type="text" id="mm-tags" placeholder="Romance, Acción, Fantasía...">
+    <label>Notas personales</label>
+    <textarea id="mm-notes" placeholder="Retomar en cap 150, esperar temporada 2..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-manhwa')">Cancelar</button>
+      <button class="btn-save" onclick="saveManhwa()">💾 Guardar</button>
+    </div>
+    <button class="btn-del" id="mm-del-btn" style="display:none" onclick="deleteManhwaModal()">🗑️ Eliminar manhwa</button>
+  </div>
+</div>
+
+<!-- MODAL: Book -->
+<div class="modal-ov" id="modal-book" style="display:none" onclick="closeMOvBg(event,'modal-book')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-book')">✕</button>
+    <h2 id="mb-title">📖 Nuevo Libro</h2>
+    <input type="hidden" id="mb-id">
+    <label>Título *</label>
+    <input type="text" id="mb-name" placeholder="Nombre del libro...">
+    <label>Autor</label>
+    <input type="text" id="mb-author" placeholder="Nombre del autor...">
+    <label>Estado</label>
+    <select id="mb-status">
+      <option value="Leyendo">📖 Leyendo</option>
+      <option value="Terminado">✅ Terminado</option>
+      <option value="Pendiente">📌 Pendiente</option>
+      <option value="Abandonado">❌ Abandonado</option>
+    </select>
+    <label>Páginas totales</label>
+    <input type="number" id="mb-pages-t" placeholder="Ej: 380" min="0">
+    <label>Página actual</label>
+    <input type="number" id="mb-pages-c" placeholder="Ej: 150" min="0">
+    <label>Calificación</label>
+    <div class="m-stars" id="m-stars">
+      <span class="m-star" onclick="setStars(1)">☆</span>
+      <span class="m-star" onclick="setStars(2)">☆</span>
+      <span class="m-star" onclick="setStars(3)">☆</span>
+      <span class="m-star" onclick="setStars(4)">☆</span>
+      <span class="m-star" onclick="setStars(5)">☆</span>
+    </div>
+    <input type="hidden" id="mb-rating" value="0">
+    <label>Fecha inicio</label>
+    <input type="date" id="mb-start">
+    <label>Fecha fin</label>
+    <input type="date" id="mb-end">
+    <label>Géneros / Tags</label>
+    <input type="text" id="mb-tags" placeholder="BL, Novela, Fantasía...">
+    <label>Comentarios</label>
+    <textarea id="mb-comment" placeholder="Tus pensamientos..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-book')">Cancelar</button>
+      <button class="btn-save" onclick="saveBook()">💾 Guardar</button>
+    </div>
+    <button class="btn-del" id="mb-del-btn" style="display:none" onclick="deleteBookModal()">🗑️ Eliminar libro</button>
+  </div>
+</div>
+
+<!-- Context menu -->
+<div class="ctx" id="ctx" style="display:none">
+  <div class="ctx-item" id="ctx-detail">🔍 Ver detalle</div>
+  <div class="ctx-item" id="ctx-edit">✏️ Editar</div>
+  <div class="ctx-item" id="ctx-cover">🖼️ Cambiar portada</div>
+  <div class="ctx-item red" id="ctx-del">🗑️ Eliminar</div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   DATA
+══════════════════════════════════════════ */
+const SK_M='ml_manhwas', SK_B='ml_books';
+let manhwas=JSON.parse(localStorage.getItem(SK_M)||'[]');
+let books  =JSON.parse(localStorage.getItem(SK_B)||'[]');
+let ctxT=null, mF='Todos', bF='Todos', mLarge=false, bLarge=false;
+let activeDetail=null, activeLB=null;
+
+function save(){localStorage.setItem(SK_M,JSON.stringify(manhwas));localStorage.setItem(SK_B,JSON.stringify(books));}
+function uid(){return Date.now()+Math.random().toString(36).slice(2);}
+function today(){return new Date().toLocaleDateString('es-DO');}
+
+/* ══════════════════════════════════════════
+   DARK MODE
+══════════════════════════════════════════ */
+function toggleDark(){
+  const d=document.documentElement;
+  const on=d.getAttribute('data-theme')==='dark';
+  d.setAttribute('data-theme',on?'light':'dark');
+  document.getElementById('btn-dark').textContent=on?'🌙':'☀️';
+  localStorage.setItem('ml_dk',on?'0':'1');
+}
+if(localStorage.getItem('ml_dk')==='1'){
+  document.documentElement.setAttribute('data-theme','dark');
+  document.getElementById('btn-dark').textContent='☀️';
+}
+
+/* ══════════════════════════════════════════
+   TABS
+══════════════════════════════════════════ */
+function switchTab(t){
+  const tabs=['manhwa','book'];
+  tabs.forEach(x=>{
+    document.getElementById('section-'+x).style.display=x===t?'':'none';
+    document.getElementById('ctrl-'+x).style.display=x===t?'':'none';
+    document.getElementById('tab-'+x).classList.toggle('active',x===t);
+  });
+}
+
+/* ══════════════════════════════════════════
+   SEARCH & FILTER HELPERS
+══════════════════════════════════════════ */
+function clearSearch(id){document.getElementById(id).value='';id==='m-search'?renderManhwas():renderBooks();}
+function setMF(f,el){mF=f;document.querySelectorAll('#m-filters .f-chip').forEach(c=>c.classList.toggle('active',c.dataset.f===f));renderManhwas();}
+function setBF(f,el){bF=f;document.querySelectorAll('#b-filters .f-chip').forEach(c=>c.classList.toggle('active',c.dataset.f===f));renderBooks();}
+function toggleMView(){mLarge=!mLarge;document.getElementById('m-view-btn').textContent=mLarge?'⊟':'⊞';renderManhwas();}
+function toggleBView(){bLarge=!bLarge;document.getElementById('b-view-btn').textContent=bLarge?'⊟':'⊞';renderBooks();}
+
+/* ══════════════════════════════════════════
+   RENDER MANHWAS
+══════════════════════════════════════════ */
+function renderManhwas(){
+  const grid=document.getElementById('m-grid');
+  const statsEl=document.getElementById('m-stats');
+  const q=(document.getElementById('m-search').value||'').toLowerCase().trim();
+  const sort=document.getElementById('m-sort').value;
+
+  // stats (always from all)
+  const c={Leyendo:0,Hiatus:0,Esperando:0,Cancelado:0,Terminado:0};
+  manhwas.forEach(m=>c[m.status]=(c[m.status]||0)+1);
+  statsEl.innerHTML=`
+    <span class="stat-chip g">📗 ${c.Leyendo}</span>
+    <span class="stat-chip o">⏰ ${c.Hiatus}</span>
+    <span class="stat-chip b">⭐ ${c.Esperando}</span>
+    <span class="stat-chip">✅ ${c.Terminado}</span>
+    <span class="stat-chip">📚 ${manhwas.length} total</span>`;
+
+  let list=[...manhwas];
+  if(mF!=='Todos')list=list.filter(m=>m.status===mF);
+  if(q)list=list.filter(m=>
+    m.title.toLowerCase().includes(q)||
+    (m.tags||'').toLowerCase().includes(q)||
+    (m.notes||'').toLowerCase().includes(q)
+  );
+  if(sort==='alpha')list.sort((a,b)=>a.title.localeCompare(b.title,'es'));
+  else if(sort==='chapter')list.sort((a,b)=>(+b.chapter||0)-(+a.chapter||0));
+  else list.sort((a,b)=>(b.lastRead||'').localeCompare(a.lastRead||''));
+
+  if(!list.length){
+    grid.className='cards-grid';
+    grid.innerHTML=`<div class="empty"><span class="ei">${q||mF!=='Todos'?'🔍':'🖼️'}</span>${q||mF!=='Todos'?'Sin resultados para esa búsqueda':'¡Agrega tu primer manhwa! 🌸'}</div>`;
+    return;
+  }
+
+  grid.className='cards-grid'+(mLarge?' large-view':'');
+  const lbl={Leyendo:'📗 Leyendo',Hiatus:'⏰ Hiatus',Esperando:'⭐ Esperando',Cancelado:'❌ Cancelado',Terminado:'✅ Terminado'};
+
+  grid.innerHTML=list.map(m=>{
+    const coverInner=m.cover
+      ?`<img class="cover-img" src="${m.cover}" alt="${m.title}">`
+      :`<div class="cover-ph">🖼️<span>Toca para portada</span></div>`;
+    const tagsHtml=m.tags
+      ?m.tags.split(',').map(t=>`<span class="tag-chip">${t.trim()}</span>`).join(''):'';
+    const linkBtn=m.link
+      ?`<a class="btn-read-link" href="${m.link}" target="_blank" onclick="event.stopPropagation()">📖 Ir a leer ↗</a>`:'';
+    return `
+    <div class="m-card" data-s="${m.status}" id="mc-${m.id}" onclick="openMDetail('${m.id}')">
+      <div class="cover-wrap${mLarge?' large-view':''}">${coverInner}</div>
+      <button class="menu-btn" onclick="event.stopPropagation();openCtx(event,'manhwa','${m.id}')">⋯</button>
+      <div class="card-body">
+        <div class="card-title">${m.title}</div>
+        <span class="s-badge s-${m.status}">${lbl[m.status]||m.status}</span>
+        ${tagsHtml?`<div class="tags-row">${tagsHtml}</div>`:''}
+        <div class="ch-row">
+          <span class="ch-lbl">Cap.</span>
+          <div class="ch-ctrls">
+            <button class="btn-ch" onclick="event.stopPropagation();chDelta('${m.id}',-1)">−</button>
+            <span class="ch-num" id="cn-${m.id}">${m.chapter||0}</span>
+            <button class="btn-ch" onclick="event.stopPropagation();chDelta('${m.id}',1)">+</button>
+          </div>
+        </div>
+        <div class="card-date">📅 ${m.lastRead||today()}</div>
+        ${linkBtn}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════
+   RENDER BOOKS
+══════════════════════════════════════════ */
+function renderBooks(){
+  const grid=document.getElementById('b-grid');
+  const q=(document.getElementById('b-search').value||'').toLowerCase().trim();
+  const sort=document.getElementById('b-sort').value;
+  let list=[...books];
+  if(bF==='Leyendo')list=list.filter(b=>b.status==='Leyendo');
+  else if(bF==='Terminado')list=list.filter(b=>b.status==='Terminado');
+  else if(['5','4','3'].includes(bF))list=list.filter(b=>(b.rating||0)>=+bF);
+  if(q)list=list.filter(b=>
+    b.title.toLowerCase().includes(q)||
+    (b.author||'').toLowerCase().includes(q)||
+    (b.tags||'').toLowerCase().includes(q)
+  );
+  if(sort==='alpha')list.sort((a,b)=>a.title.localeCompare(b.title,'es'));
+  else if(sort==='rating')list.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  else if(sort==='progress')list.sort((a,b)=>{
+    const pa=a.pagesTotal?(a.pagesCurrent||0)/a.pagesTotal:0;
+    const pb=b.pagesTotal?(b.pagesCurrent||0)/b.pagesTotal:0;
+    return pb-pa;
+  });
+
+  if(!list.length){
+    grid.className='cards-grid';
+    grid.innerHTML=`<div class="empty"><span class="ei">${q||bF!=='Todos'?'🔍':'📖'}</span>${q||bF!=='Todos'?'Sin resultados':'¡Agrega tu primer libro! ✨'}</div>`;
+    return;
+  }
+  grid.className='cards-grid'+(bLarge?' large-view':'');
+  const h=bLarge?230:145;
+  grid.innerHTML=list.map(b=>{
+    const coverHtml=b.cover
+      ?`<img class="cover-img" src="${b.cover}" alt="${b.title}" style="height:${h}px;width:100%;object-fit:cover;display:block;">`
+      :`<div class="book-ph" style="height:${h}px">📚<span>Toca para portada</span></div>`;
+    const stars=[1,2,3,4,5].map(i=>
+      `<button class="star-btn" onclick="event.stopPropagation();quickStar('${b.id}',${i})">${i<=(b.rating||0)?'⭐':'☆'}</button>`
+    ).join('');
+    const pct=b.pagesTotal&&b.pagesCurrent?Math.min(100,Math.round(b.pagesCurrent/b.pagesTotal*100)):0;
+    const progHtml=b.pagesTotal?`<div class="prog-row"><label>Pág.</label><div class="prog-bar-wrap"><div class="prog-bar" style="width:${pct}%"></div></div><span class="prog-pct">${pct}%</span></div>`:'';
+    const tagsHtml=b.tags?b.tags.split(',').map(t=>`<span class="tag-chip">${t.trim()}</span>`).join(''):'';
+    return `
+    <div class="b-card" id="bc-${b.id}" onclick="openBDetail('${b.id}')">
+      ${coverHtml}
+      <button class="menu-btn" onclick="event.stopPropagation();openCtx(event,'book','${b.id}')" style="border-color:var(--pink)">⋯</button>
+      <div class="b-body">
+        <div class="b-title">${b.title}</div>
+        <div class="b-author">${b.author||'Autor desconocido'}</div>
+        <div class="stars-row">${stars}</div>
+        ${progHtml}
+        ${tagsHtml?`<div class="tags-row">${tagsHtml}</div>`:''}
+        <div class="b-dates">${b.start?'🗓️ '+b.start:''}${b.end?' — '+b.end:''}</div>
+        <textarea class="b-comment-inline" placeholder="Comentarios..." onclick="event.stopPropagation()" onchange="saveComment('${b.id}',this.value)">${b.comment||''}</textarea>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════
+   CHAPTER CONTROLS
+══════════════════════════════════════════ */
+function chDelta(id,d){
+  const m=manhwas.find(x=>x.id===id);if(!m)return;
+  m.chapter=Math.max(0,(+m.chapter||0)+d);
+  m.lastRead=today();
+  if(!m.history)m.history=[];
+  m.history.unshift({date:today(),chapter:m.chapter});
+  if(m.history.length>60)m.history=m.history.slice(0,60);
+  save();
+  const el=document.getElementById('cn-'+id);if(el)el.textContent=m.chapter;
+  const de=document.querySelector(`#mc-${id} .card-date`);if(de)de.textContent='📅 '+m.lastRead;
+  showToast('Cap. '+m.chapter+' ✨');
+}
+function quickStar(id,n){
+  const b=books.find(x=>x.id===id);if(!b)return;
+  b.rating=n;save();renderBooks();showToast('⭐'.repeat(n));
+}
+function saveComment(id,v){const b=books.find(x=>x.id===id);if(b){b.comment=v;save();}}
+
+/* ══════════════════════════════════════════
+   DETAIL PANEL — MANHWA
+══════════════════════════════════════════ */
+function openMDetail(id){
+  const m=manhwas.find(x=>x.id===id);if(!m)return;
+  const lbl={Leyendo:'📗 Leyendo',Hiatus:'⏰ Hiatus',Esperando:'⭐ Esperando',Cancelado:'❌ Cancelado',Terminado:'✅ Terminado'};
+  const covBig=m.cover
+    ?`<img class="d-cover-big" src="${m.cover}" onclick="openLB('${id}','manhwa')">`
+    :`<div class="d-cover-ph-big">🖼️</div>`;
+  const histHtml=m.history&&m.history.length
+    ?m.history.slice(0,30).map(h=>`<div class="h-item"><span class="h-date">📅 ${h.date}</span><span class="h-ch">Cap. ${h.chapter}</span></div>`).join('')
+    :'<p style="font-size:.76rem;color:var(--text-l)">Sin historial todavía</p>';
+  const tagsHtml=m.tags?m.tags.split(',').map(t=>`<span class="tag-chip">${t.trim()}</span>`).join(''):'—';
+  const linkBtn=m.link?`<a class="d-btn go" href="${m.link}" target="_blank">📖 Ir a leer ↗</a>`:'';
+
+  const html=`
+  <div class="detail-overlay" id="dov" onclick="closeDetailIf(event)">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-panel" id="dp">
+      <div class="d-handle"></div>
+      <div class="d-inner">
+        ${covBig}
+        <div class="d-title">${m.title}</div>
+        <div class="d-meta">
+          <span class="s-badge s-${m.status}">${lbl[m.status]||m.status}</span>
+          &nbsp; Cap. <strong>${m.chapter||0}</strong> &nbsp;·&nbsp; 📅 ${m.lastRead||'—'}
+        </div>
+        <div class="d-actions">
+          <button class="d-btn primary" onclick="closeDetail();openEditManhwa('${id}')">✏️ Editar</button>
+          <button class="d-btn" onclick="openCover('manhwa','${id}')">🖼️ Portada</button>
+          ${linkBtn}
+          <button class="d-btn danger" onclick="deleteMFromPanel('${id}')">🗑️ Eliminar</button>
+        </div>
+        <div class="d-section"><h4>🏷️ Tags</h4><div class="tags-row">${tagsHtml}</div></div>
+        <div class="d-section">
+          <h4>📝 Notas</h4>
+          <textarea class="d-note" placeholder="Notas personales..." onchange="saveNote('${id}',this.value)">${m.notes||''}</textarea>
+        </div>
+        <div class="d-section"><h4>📊 Historial de capítulos</h4><div class="history-list">${histHtml}</div></div>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+  activeDetail=document.getElementById('dov');
+}
+
+/* ══════════════════════════════════════════
+   DETAIL PANEL — BOOK
+══════════════════════════════════════════ */
+function openBDetail(id){
+  const b=books.find(x=>x.id===id);if(!b)return;
+  const covBig=b.cover
+    ?`<img class="d-cover-big" src="${b.cover}" onclick="openLB('${id}','book')">`
+    :`<div class="d-cover-ph-big">📚</div>`;
+  const stars=[1,2,3,4,5].map(i=>i<=(b.rating||0)?'⭐':'☆').join('');
+  const pct=b.pagesTotal&&b.pagesCurrent?Math.min(100,Math.round(b.pagesCurrent/b.pagesTotal*100)):0;
+  const progHtml=b.pagesTotal
+    ?`<div class="prog-row" style="margin-bottom:6px"><label>Pág. ${b.pagesCurrent||0}/${b.pagesTotal}</label><div class="prog-bar-wrap"><div class="prog-bar" style="width:${pct}%"></div></div><span class="prog-pct">${pct}%</span></div>`:'';
+  const tagsHtml=b.tags?b.tags.split(',').map(t=>`<span class="tag-chip">${t.trim()}</span>`).join(''):'—';
+
+  const html=`
+  <div class="detail-overlay" id="dov" onclick="closeDetailIf(event)">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-panel" id="dp">
+      <div class="d-handle"></div>
+      <div class="d-inner">
+        ${covBig}
+        <div class="d-title">${b.title}</div>
+        <div class="d-meta">
+          ${b.author?`✍️ ${b.author}<br>`:''}
+          ${stars} (${b.rating||0}/5)<br>
+          ${progHtml}
+          ${b.start?`🗓️ ${b.start}`:''}${b.end?` → ${b.end}`:''}
+        </div>
+        <div class="d-actions">
+          <button class="d-btn primary" onclick="closeDetail();openEditBook('${id}')">✏️ Editar</button>
+          <button class="d-btn" onclick="openCover('book','${id}')">🖼️ Portada</button>
+          <button class="d-btn danger" onclick="deleteBFromPanel('${id}')">🗑️ Eliminar</button>
+        </div>
+        <div class="d-section"><h4>🏷️ Tags</h4><div class="tags-row">${tagsHtml}</div></div>
+        <div class="d-section">
+          <h4>💬 Comentarios</h4>
+          <textarea class="d-note" placeholder="Tus pensamientos..." onchange="saveComment('${id}',this.value)">${b.comment||''}</textarea>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+  activeDetail=document.getElementById('dov');
+}
+
+function saveNote(id,v){const m=manhwas.find(x=>x.id===id);if(m){m.notes=v;save();}}
+function closeDetail(){if(activeDetail){activeDetail.remove();activeDetail=null;}}
+function closeDetailIf(e){if(e.target.id==='dov')closeDetail();}
+function deleteMFromPanel(id){if(confirm('¿Eliminar?')){manhwas=manhwas.filter(x=>x.id!==id);save();renderManhwas();closeDetail();showToast('Eliminado 🗑️');}}
+function deleteBFromPanel(id){if(confirm('¿Eliminar?')){books=books.filter(x=>x.id!==id);save();renderBooks();closeDetail();showToast('Eliminado 🗑️');}}
+
+/* ══════════════════════════════════════════
+   LIGHTBOX
+══════════════════════════════════════════ */
+function openLB(id,type){
+  const item=type==='manhwa'?manhwas.find(x=>x.id===id):books.find(x=>x.id===id);
+  if(!item||!item.cover)return;
+  const html=`<div class="lightbox" id="lb" onclick="closeLB()"><div class="lb-close" onclick="closeLB()">✕</div><img src="${item.cover}" onclick="event.stopPropagation()"></div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+  activeLB=document.getElementById('lb');
+}
+function closeLB(){if(activeLB){activeLB.remove();activeLB=null;}}
+
+/* ══════════════════════════════════════════
+   CTX MENU
+══════════════════════════════════════════ */
+function openCtx(e,type,id){
+  e.stopPropagation();ctxT={type,id};
+  const m=document.getElementById('ctx');m.style.display='block';
+  const x=Math.min(e.clientX,window.innerWidth-170);
+  const y=Math.min(e.clientY+4,window.innerHeight-150);
+  m.style.left=x+'px';m.style.top=y+'px';
+  document.getElementById('ctx-detail').onclick=()=>{closeCtx();type==='manhwa'?openMDetail(id):openBDetail(id);};
+  document.getElementById('ctx-edit').onclick=()=>{closeCtx();type==='manhwa'?openEditManhwa(id):openEditBook(id);};
+  document.getElementById('ctx-cover').onclick=()=>{closeCtx();openCover(type,id);};
+  document.getElementById('ctx-del').onclick=()=>{closeCtx();ctxDel();};
+}
+function closeCtx(){document.getElementById('ctx').style.display='none';}
+function ctxDel(){
+  if(!ctxT)return;
+  const msg='¿Eliminar?';
+  if(ctxT.type==='manhwa'){if(confirm(msg)){manhwas=manhwas.filter(x=>x.id!==ctxT.id);save();renderManhwas();showToast('Eliminado 🗑️');}}
+  else{if(confirm(msg)){books=books.filter(x=>x.id!==ctxT.id);save();renderBooks();showToast('Eliminado 🗑️');}}
+}
+document.addEventListener('click',()=>closeCtx());
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeDetail();closeLB();}
+});
+
+/* ══════════════════════════════════════════
+   COVER INPUT
+══════════════════════════════════════════ */
+function openCover(type,id){
+  const inp=document.getElementById(type==='manhwa'?'fi-manhwa':'fi-book');
+  inp.dataset.tid=id;inp.click();
+}
+document.getElementById('fi-manhwa').addEventListener('change',function(){
+  const id=this.dataset.tid,f=this.files[0];if(!f||!id)return;
+  const r=new FileReader();
+  r.onload=e=>{const m=manhwas.find(x=>x.id===id);if(m){m.cover=e.target.result;save();renderManhwas();showToast('Portada actualizada 🖼️');}};
+  r.readAsDataURL(f);this.value='';
+});
+document.getElementById('fi-book').addEventListener('change',function(){
+  const id=this.dataset.tid,f=this.files[0];if(!f||!id)return;
+  const r=new FileReader();
+  r.onload=e=>{const b=books.find(x=>x.id===id);if(b){b.cover=e.target.result;save();renderBooks();showToast('Portada actualizada 🖼️');}};
+  r.readAsDataURL(f);this.value='';
+});
+
+/* ══════════════════════════════════════════
+   MANHWA MODAL
+══════════════════════════════════════════ */
+function openAddManhwa(){
+  document.getElementById('mm-title').textContent='✨ Nuevo Manhwa';
+  ['mm-id','mm-name','mm-link','mm-tags','mm-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mm-status').value='Leyendo';
+  document.getElementById('mm-chapter').value='1';
+  document.getElementById('mm-del-btn').style.display='none';
+  document.getElementById('modal-manhwa').style.display='flex';
+}
+function openEditManhwa(id){
+  const m=manhwas.find(x=>x.id===id);if(!m)return;
+  document.getElementById('mm-title').textContent='✏️ Editar Manhwa';
+  document.getElementById('mm-id').value=id;
+  document.getElementById('mm-name').value=m.title;
+  document.getElementById('mm-status').value=m.status;
+  document.getElementById('mm-chapter').value=m.chapter||0;
+  document.getElementById('mm-link').value=m.link||'';
+  document.getElementById('mm-tags').value=m.tags||'';
+  document.getElementById('mm-notes').value=m.notes||'';
+  document.getElementById('mm-del-btn').style.display='block';
+  document.getElementById('modal-manhwa').style.display='flex';
+}
+function saveManhwa(){
+  const title=document.getElementById('mm-name').value.trim();
+  if(!title){showToast('⚠️ Escribe el título');return;}
+  const status=document.getElementById('mm-status').value;
+  const chapter=+document.getElementById('mm-chapter').value||0;
+  const link=document.getElementById('mm-link').value.trim();
+  const tags=document.getElementById('mm-tags').value.trim();
+  const notes=document.getElementById('mm-notes').value;
+  const eid=document.getElementById('mm-id').value;
+  if(eid){const m=manhwas.find(x=>x.id===eid);if(m){m.title=title;m.status=status;m.chapter=chapter;m.link=link;m.tags=tags;m.notes=notes;m.lastRead=today();}}
+  else manhwas.unshift({id:uid(),title,status,chapter,link,tags,notes,cover:null,lastRead:today(),history:[]});
+  save();renderManhwas();closeModal('modal-manhwa');showToast('Guardado 💾');
+}
+function deleteManhwaModal(){
+  const id=document.getElementById('mm-id').value;if(!id)return;
+  if(confirm('¿Eliminar?')){manhwas=manhwas.filter(x=>x.id!==id);save();renderManhwas();closeModal('modal-manhwa');showToast('Eliminado 🗑️');}
+}
+
+/* ══════════════════════════════════════════
+   BOOK MODAL
+══════════════════════════════════════════ */
+let mStars=0;
+function setStars(n){
+  mStars=n;document.getElementById('mb-rating').value=n;
+  document.querySelectorAll('#m-stars .m-star').forEach((s,i)=>s.textContent=i<n?'⭐':'☆');
+}
+function openAddBook(){
+  document.getElementById('mb-title').textContent='📖 Nuevo Libro';
+  ['mb-id','mb-name','mb-author','mb-tags','mb-comment','mb-pages-t','mb-pages-c','mb-start','mb-end'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mb-status').value='Leyendo';
+  document.getElementById('mb-del-btn').style.display='none';
+  setStars(0);
+  document.getElementById('modal-book').style.display='flex';
+}
+function openEditBook(id){
+  const b=books.find(x=>x.id===id);if(!b)return;
+  document.getElementById('mb-title').textContent='✏️ Editar Libro';
+  document.getElementById('mb-id').value=id;
+  document.getElementById('mb-name').value=b.title;
+  document.getElementById('mb-author').value=b.author||'';
+  document.getElementById('mb-status').value=b.status||'Leyendo';
+  document.getElementById('mb-pages-t').value=b.pagesTotal||'';
+  document.getElementById('mb-pages-c').value=b.pagesCurrent||'';
+  document.getElementById('mb-start').value=b.start||'';
+  document.getElementById('mb-end').value=b.end||'';
+  document.getElementById('mb-tags').value=b.tags||'';
+  document.getElementById('mb-comment').value=b.comment||'';
+  document.getElementById('mb-del-btn').style.display='block';
+  setStars(b.rating||0);
+  document.getElementById('modal-book').style.display='flex';
+}
+function saveBook(){
+  const title=document.getElementById('mb-name').value.trim();
+  if(!title){showToast('⚠️ Escribe el título');return;}
+  const author=document.getElementById('mb-author').value.trim();
+  const status=document.getElementById('mb-status').value;
+  const pagesTotal=+document.getElementById('mb-pages-t').value||0;
+  const pagesCurrent=+document.getElementById('mb-pages-c').value||0;
+  const rating=+document.getElementById('mb-rating').value||0;
+  const start=document.getElementById('mb-start').value;
+  const end=document.getElementById('mb-end').value;
+  const tags=document.getElementById('mb-tags').value.trim();
+  const comment=document.getElementById('mb-comment').value;
+  const eid=document.getElementById('mb-id').value;
+  if(eid){const b=books.find(x=>x.id===eid);if(b){b.title=title;b.author=author;b.status=status;b.pagesTotal=pagesTotal;b.pagesCurrent=pagesCurrent;b.rating=rating;b.start=start;b.end=end;b.tags=tags;b.comment=comment;}}
+  else books.unshift({id:uid(),title,author,status,pagesTotal,pagesCurrent,rating,start,end,tags,comment,cover:null});
+  save();renderBooks();closeModal('modal-book');showToast('Guardado 💾');
+}
+function deleteBookModal(){
+  const id=document.getElementById('mb-id').value;if(!id)return;
+  if(confirm('¿Eliminar?')){books=books.filter(x=>x.id!==id);save();renderBooks();closeModal('modal-book');showToast('Eliminado 🗑️');}
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function closeModal(id){document.getElementById(id).style.display='none';}
+function closeMOvBg(e,id){if(e.target.id===id)closeModal(id);}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ══════════════════════════════════════════
+   PWA
+══════════════════════════════════════════ */
+let dPr=null;
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
+const isSA=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+if(!isSA){
+  if(isIOS)setTimeout(()=>document.getElementById('ios-guide').classList.add('show'),3500);
+  else{
+    window.addEventListener('beforeinstallprompt',e=>{
+      e.preventDefault();dPr=e;
+      setTimeout(()=>document.getElementById('install-banner').classList.add('show'),2500);
+    });
+    document.getElementById('btn-install-click').addEventListener('click',async()=>{
+      if(!dPr)return;dPr.prompt();
+      const r=await dPr.userChoice;dPr=null;dismissBanner();
+      if(r.outcome==='accepted')showToast('¡App instalada! 🎉');
+    });
+  }
+}
+function dismissBanner(){document.getElementById('install-banner').classList.remove('show');}
+function dismissIos(){document.getElementById('ios-guide').classList.remove('show');}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+renderManhwas();
+renderBooks();
+</script>
+</body>
+</html>
